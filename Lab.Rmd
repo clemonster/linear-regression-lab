@@ -47,5 +47,108 @@ Xtest <- X[!data[["train"]], ]
 Ytest <- Y[!data[["train"]], ]
 ```
 
+2. Compute the correlations of predictors in the prostate cancer data as presented in  **Table 3.1**
 
+```{r}
+Xtrainscale <- scale(Xtrain)
+C <- cov(as.matrix(Xtrainscale))
+C
+```
+
+3. Reproduce the results presented Table 3.2
+  a) Compute the coefficients of the linear regression model, without using the lm function
+(but you can use it validate your code)
+
+```{r}
+Xtrainone <- cbind(array(1, dim = c(nrow(Xtrain),1)), Xtrain)
+b <- solve(t(Xtrainone) %*% Xtrainone, t(Xtrainone) %*% Ytrain)
+```
+
+  b) Compute the prediction error
+  
+```{r}
+Ypred <- Xtrainone %*% b
+err <- Ytrain - Ypred
+```
+
+  c) Compute the standard error for each variable
+  
+```{r}
+sig2 <- (t(err) %*% err)/ (nrow(Xtrainone) - ncol(X) -1)
+v <- diag(solve(t(Xtrainone) %*% Xtrainone))
+stderr <- sqrt(as.vector(sig2)) * sqrt(v)
+```
+  
+  d) compute the Z score for each variable
+```{r}
+Z <- b/stderr
+```
+
+  e) visualize the results and compare with table 3.2
+
+```{r}
+table32 <- cbind(b,stderr,Z)
+table32
+```
+
+**Ex. 2 — Your turn**
+
+Reproduce Table 3.3, at least the first four columns that is LS, Best Subset, Ridge and Lasso.
+
+We already have the LS column, this corresponds to our **b** vector computed earlier.
+
+For the *Best subset* column, we need to find the best model among all simple linear regression models (we do not consider models with interactions)
+For now to make things easier, let's assume we know the best model only contains the lcavol and the lweight coefficients.
+
+```{r}
+Xb <- X[,c("lcavol", "lweight")]
+```
+
+Split into test and train sets
+```{r}
+Xb_train <- Xb[data[["train"]], ]
+Xb_test <- Xb[!data[["train"]], ]
+
+#Uncomment the next line if you need to scale again
+#Xbest_trainscale <- scale(Xbest_train)
+```
+
+```{r}
+#Add 1s to our feature matrix
+Xb_trainone <- cbind(array(1, dim = c(nrow(Xb_train),1)), Xb_train)
+#Solve normal eqns and find b_best
+b_best <- solve(t(Xb_trainone) %*% Xb_trainone, t(Xb_trainone) %*% Ytrain)
+
+#Compute prediction error on the train set for each data point
+Yb_pred <- Xb_trainone %*% b_best
+errb <- Ytrain - Yb_pred
+
+#Compute standard error for each variable
+sig2b <- (t(errb) %*% errb)/ (nrow(Xb_trainone) - ncol(X) -1)
+vb <- diag(solve(t(Xb_trainone) %*% Xb_trainone))
+stderrb <- sqrt(as.vector(sig2)) * sqrt(v)
+
+#Compute prediction error on the test set for each data point
+Xb_testone <- cbind(array(1, dim = c(nrow(Xb_test),1)), Xb_test)
+Yb_pred_test <- Xb_testone %*% b_best
+errb_test <- Ytest - Yb_pred_test
+```
+Create the column *Best Subset*
+```{r}
+best_subset <- c(b_best, matrix(0, 6, 1), mean(errb_test), sd(errb_test))
+```
+
+We could also fit all the models to find the best subset.
+
+```{r}
+dummies = expand.grid(0:1, 0:1, 0:1, 0:1, 0:1, 0:1, 0:1, 0:1)
+dim(dummies)
+```
+
+
+Let's compute the Ridge column.
+
+```{r}
+
+```
 
