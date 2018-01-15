@@ -1,0 +1,51 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+## The objectives of the lab
+
+The purpose of this lab is to reproduce tables from the third chapter of the book "Elements of
+Statistical Learning" from Hastie, Tibshirani and Friedman, as they are shown below. (Table 3.1 and 3.2)
+
+###Ex 1 - Tables 3.1 and 3.2
+
+1) Prepare the data  
+  a) Raw data is available on the web at http://statweb.stanford.edu/~tibs/ElemStatLearn.1stEd/datasets/prostate.data . It has already been downloaded and is in the *data* folder.
+  
+```{r}
+data <- read.table("data/prostate.data", sep = "")
+head(data)
+```
+b) Extract and normalize the explicative variables
+
+```{r}
+X <- scale(data[,1:8])
+```
+c) Is it wise to normalize these data?
+```{r}
+summary(data)
+```
+In ordinary linear regression, we sometimes normalize data for numerical reasons, when they differ by a large order of magnitude. Here the ranges of the different variables are quite similar so it is not necessary to normalize. However here normalization was done by the textbook. Since we want to reproduce the tables of the textbook, we normalize our data.
+
+```{r}
+X <- scale(data[,1:8])
+```
+
+d) Extract the target variable
+
+```{r}
+Y <- as.matrix(data[,"lpsa"])
+```
+
+e) Split the data into train and test set
+
+```{r}
+Xtrain <- X[data[["train"]], ]
+Ytrain <- Y[data[["train"]],]
+Xtest <- X[!data[["train"]], ]
+Ytest <- Y[!data[["train"]], ]
+```
+
+
+
